@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.BillLedger" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#D5DBE0</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowBackground">#FFFFFF</item>
+    </style>
+</resources>
