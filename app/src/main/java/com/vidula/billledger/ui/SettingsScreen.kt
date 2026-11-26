@@ -10,29 +10,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.vidula.billledger.data.AppSettings
-import com.vidula.billledger.data.ReadMode
 import java.text.DateFormat
 import java.util.Date
 
@@ -42,7 +31,6 @@ fun SettingsScreen(
     onLinkExcel: () -> Unit, onUnlink: () -> Unit, onSyncNow: () -> Unit, onExportCopy: () -> Unit, onImport: () -> Unit,
 ) {
     val l = LocalLedger.current
-    var showKey by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp)) {
         Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(top = 20.dp))
 
@@ -71,29 +59,8 @@ fun SettingsScreen(
         }
 
         SectionTitle("Reading bills")
-        listOf(
-            ReadMode.ON_DEVICE to ("On the phone" to "Free and works offline. Good for totals and dates; item names may need a quick fix."),
-            ReadMode.CLAUDE to ("Claude" to "Most accurate item names, quantities and categories. Uses your Anthropic API key and needs internet. If Claude can't be reached, the phone reads the bill instead."),
-        ).forEach { (mode, text) ->
-            Row(Modifier.fillMaxWidth().selectable(selected = s.readMode == mode, onClick = { onChange { it.copy(readMode = mode) } }).padding(vertical = 8.dp), verticalAlignment = Alignment.Top) {
-                RadioButton(selected = s.readMode == mode, onClick = { onChange { it.copy(readMode = mode) } })
-                Column(Modifier.padding(start = 6.dp, top = 10.dp)) {
-                    Text(text.first, fontWeight = FontWeight.SemiBold)
-                    Text(text.second, color = l.mute, style = MaterialTheme.typography.labelMedium)
-                }
-            }
-        }
-        if (s.readMode == ReadMode.CLAUDE) {
-            OutlinedTextField(
-                s.apiKey, { v -> onChange { it.copy(apiKey = v.trim()) } }, label = { Text("Anthropic API key") }, singleLine = true,
-                visualTransformation = if (showKey) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = { TextButton(onClick = { showKey = !showKey }) { Text(if (showKey) "Hide" else "Show") } },
-                supportingText = { Text(if (s.apiKey.isBlank()) "Get one at console.anthropic.com. It stays on this phone." else "Stored only on this phone.") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(s.model, { v -> onChange { it.copy(model = v.trim()) } }, label = { Text("Model") }, singleLine = true,
-                supportingText = { Text("claude-sonnet-5-5 is a good balance; claude-haiku-5-5 is cheaper.") }, modifier = Modifier.fillMaxWidth())
-        }
+        Text("Bills are read on this phone, offline. Photos and data never leave your device. If an item name comes out wrong, tap the bill in the Bills tab to fix it.",
+            color = l.mute)
 
         SectionTitle("Main currency")
         Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

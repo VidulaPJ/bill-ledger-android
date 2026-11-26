@@ -12,7 +12,7 @@ import java.time.Month
 
 /**
  * Free, offline reading: Google ML Kit finds the text, then simple rules pick out
- * the payee, dates, total and item lines. Rougher than Claude — every result can be edited.
+ * the payee, dates, total and item lines. Every result can be edited.
  */
 object OnDeviceReader {
 

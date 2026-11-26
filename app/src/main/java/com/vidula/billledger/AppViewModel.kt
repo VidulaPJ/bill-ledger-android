@@ -10,13 +10,10 @@ import com.vidula.billledger.data.AppSettings
 import com.vidula.billledger.data.Bill
 import com.vidula.billledger.data.BillWithItems
 import com.vidula.billledger.data.Item
-import com.vidula.billledger.data.ReadMode
 import com.vidula.billledger.data.SettingsStore
 import com.vidula.billledger.data.newBillId
 import com.vidula.billledger.excel.Workbook
 import com.vidula.billledger.excel.XlsxReader
-import com.vidula.billledger.reading.ClaudeException
-import com.vidula.billledger.reading.ClaudeReader
 import com.vidula.billledger.reading.Draft
 import com.vidula.billledger.reading.NotABillException
 import com.vidula.billledger.reading.OnDeviceReader
@@ -74,7 +71,7 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
                     setQ(q.key, QState.DONE, "${d.vendor} · ${Money.format(d.total, d.currency)} · ${d.items.size} items")
                 } catch (e: Exception) {
                     setQ(q.key, QState.FAILED, when (e) {
-                        is NotABillException, is ClaudeException -> e.message ?: "Couldn't read it"
+                        is NotABillException -> e.message ?: "Couldn't read it"
                         else -> "Couldn't read it — add it by hand"
                     })
                 }
@@ -86,14 +83,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private suspend fun readOne(uri: Uri): Draft {
         val s = _settings.value
         val pages = withContext(Dispatchers.IO) { loadPages(getApplication(), uri) }
-        if (s.readMode == ReadMode.CLAUDE && s.apiKey.isNotBlank()) {
-            try {
-                return ClaudeReader.read(pages, s.apiKey, s.model, s.currency)
-            } catch (e: IOException) {
-                // offline or unreachable: fall back to the phone's own reader
-                message.value = "Couldn't reach Claude — read on the phone instead"
-            }
-        }
         return withContext(Dispatchers.Default) { OnDeviceReader.read(pages, s.currency) }
     }
 
